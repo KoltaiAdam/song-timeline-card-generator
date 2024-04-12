@@ -2,10 +2,15 @@ import pandas as pd
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 import qrcode
 import hashlib
 import argparse
 import textwrap
+
+pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
+pdfmetrics.registerFont(TTFont('ArialBlack', 'ariblk.ttf'))
 
 def generate_qr_code(url, file_path):
     qr = qrcode.QRCode(
@@ -33,22 +38,27 @@ def add_qr_code_with_border(c, url, position, box_size, padding_size=100):
     c.drawImage(qr_code_path, x+(padding_size/2), y+(padding_size/2), width=box_size-padding_size, height=box_size-padding_size)
     c.rect(x, y, box_size, box_size, 1, 0)
 
-def add_text_box(c, info, position, box_size, small_font_size=18, big_font_size=50):
+def add_text_box(c, info, position, box_size, small_font_size=18, big_font_size=44):
     x, y = position
     text_margin = 30
-    c.setFont("Helvetica", small_font_size)
+    small_font_type = "Arial"
+    big_font_type = "ArialBlack"
+
+    c.setFont(small_font_type, small_font_size)
     artist_text = f"{info['Artist']}"
     title_text = f"{info['Title']}"
     year_text = f"{info['Year']}"
 
+    print(f"Artist:{artist_text}" + "  " + f"Title: {title_text} " + " " + f"Year: {year_text}")
     # Calculate the centered position for each line of text
-    artist_x = x + (box_size - c.stringWidth(artist_text, "Helvetica", small_font_size)) / 2
-    title_x = x + (box_size - c.stringWidth(title_text, "Helvetica", small_font_size)) / 2
-    year_x = x + (box_size - c.stringWidth(year_text, "Helvetica-Bold", big_font_size)) / 2
+    
+    artist_x = x + (box_size - c.stringWidth(artist_text, small_font_type, small_font_size)) / 2
+    title_x = x + (box_size - c.stringWidth(title_text, small_font_type, small_font_size)) / 2
+    year_x = x + (box_size - c.stringWidth(year_text, big_font_type, big_font_size)) / 2
 
     # Split the text into multiple lines if it doesn't fit in the width
-    artist_lines = textwrap.wrap(artist_text, width=int(len(artist_text) / c.stringWidth(artist_text, "Helvetica", small_font_size) * (box_size - text_margin)))
-    title_lines = textwrap.wrap(title_text, width=int(len(title_text) / c.stringWidth(title_text, "Helvetica", small_font_size) * (box_size - text_margin)))
+    artist_lines = textwrap.wrap(artist_text, width=int(len(artist_text) / c.stringWidth(artist_text, small_font_type, small_font_size) * (box_size - text_margin)))
+    title_lines = textwrap.wrap(title_text, width=int(len(title_text) / c.stringWidth(title_text, small_font_type, small_font_size) * (box_size - text_margin)))
 
     # Calculate the centered position for each line of text
     artist_y = y + box_size - (small_font_size *2)
@@ -71,16 +81,16 @@ def add_text_box(c, info, position, box_size, small_font_size=18, big_font_size=
 
     # Draw each line of text
     for line in artist_lines:
-        artist_x = x + (box_size - c.stringWidth(line, "Helvetica", small_font_size)) / 2
+        artist_x = x + (box_size - c.stringWidth(line, small_font_type, small_font_size)) / 2
         c.drawString(artist_x, artist_y, line)
         artist_y -= small_font_size + 2
 
     for line in title_lines:
-        title_x = x + (box_size - c.stringWidth(line, "Helvetica", small_font_size)) / 2
+        title_x = x + (box_size - c.stringWidth(line, small_font_type, small_font_size)) / 2
         c.drawString(title_x, title_y, line)
         title_y -= small_font_size + 2
 
-    c.setFont("Helvetica-Bold", big_font_size)
+    c.setFont(big_font_type, big_font_size)
     c.drawString(year_x, year_y, year_text)
 
     c.rect(x, y, box_size, box_size)
@@ -100,6 +110,8 @@ def main(csv_file_path, output_pdf_path):
     hpageindent = (page_width - (box_size * boxes_per_row)) / 2
 
     for i in range(0, len(data), boxes_per_page):
+        # write to console the progress
+        print(f"Processing {i} of {len(data)}")
     # Generate QR codes
         for index in range(i, min(i + boxes_per_page, len(data))):
             row = data.iloc[index]
