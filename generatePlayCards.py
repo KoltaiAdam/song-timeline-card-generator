@@ -92,8 +92,8 @@ def add_text_box(c, info, position, box_size, small_font_size=18, big_font_size=
 
     c.setFont(big_font_type, big_font_size)
     c.drawString(year_x, year_y, year_text)
-
-    c.rect(x, y, box_size, box_size)
+    c.setStrokeColorRGB(0.95,0.95,0.95) 
+    c.rect(x, y, box_size, box_size, 1, 0)
 
 def main(csv_file_path, output_pdf_path):
     data = pd.read_csv(csv_file_path, sep=";")
