@@ -17,19 +17,19 @@ def generate_qr_code(url, file_path):
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
         box_size=10,
-        border=3,
+        border=0,
     )
     qr.add_data(url)
     qr.make(fit=True)
-    img = qr.make_image(fill_color="white", back_color="black")
+    img = qr.make_image(fill_color="black", back_color="white")
     img.save(file_path)
 
-def add_qr_code_with_border(c, url, position, box_size, padding_size=100):
+def add_qr_code_with_border(c, url, position, box_size, padding_size=110):
     hash_object = hashlib.sha256(url.encode())
     hex_dig = hash_object.hexdigest()
 
     qr_code_path = f"qr_{hex_dig}.png"  # Unique path for each QR code
-    background_path = "background.png"
+    background_path = "background_inverted.png"
     generate_qr_code(url, qr_code_path)
     x, y = position
     c.setStrokeColorRGB(255,255,255) 
