@@ -48,6 +48,11 @@ def add_text_box(c, info, position, box_size, small_font_size=18, big_font_size=
     artist_text = f"{info['Artist']}"
     title_text = f"{info['Title']}"
     year_text = f"{info['Year']}"
+    tier_text = f"{info['Tier']}"
+    if tier_text == "1":
+        tier_text = "°"
+    else:
+        tier_text = "° °"
 
     print(f"Artist:{artist_text}" + "  " + f"Title: {title_text} " + " " + f"Year: {year_text}")
     # Calculate the centered position for each line of text
@@ -55,15 +60,17 @@ def add_text_box(c, info, position, box_size, small_font_size=18, big_font_size=
     artist_x = x + (box_size - c.stringWidth(artist_text, small_font_type, small_font_size)) / 2
     title_x = x + (box_size - c.stringWidth(title_text, small_font_type, small_font_size)) / 2
     year_x = x + (box_size - c.stringWidth(year_text, big_font_type, big_font_size)) / 2
+    tier_x = x + (box_size - c.stringWidth(tier_text, small_font_type, small_font_size)) / 2
 
     # Split the text into multiple lines if it doesn't fit in the width
     artist_lines = textwrap.wrap(artist_text, width=int(len(artist_text) / c.stringWidth(artist_text, small_font_type, small_font_size) * (box_size - text_margin)))
     title_lines = textwrap.wrap(title_text, width=int(len(title_text) / c.stringWidth(title_text, small_font_type, small_font_size) * (box_size - text_margin)))
 
     # Calculate the centered position for each line of text
-    artist_y = y + box_size - (small_font_size *2)
-    title_y = y + (len(title_lines) * small_font_size)
-    year_y = y + (box_size / 2) - (big_font_size / 2) + 5
+    artist_y = y + box_size - (small_font_size *2) + 5
+    title_y = y + (len(title_lines) * small_font_size) + 10
+    year_y = y + (box_size / 2) - (big_font_size / 2) + 10
+    tier_y = y + 5
 
     #number of artist lines
     artist_lines_count = len(artist_lines)
@@ -90,6 +97,7 @@ def add_text_box(c, info, position, box_size, small_font_size=18, big_font_size=
         c.drawString(title_x, title_y, line)
         title_y -= small_font_size + 2
 
+    c.drawString(tier_x, tier_y, tier_text)
     c.setFont(big_font_type, big_font_size)
     c.drawString(year_x, year_y, year_text)
     c.setStrokeColorRGB(0.95,0.95,0.95) 
